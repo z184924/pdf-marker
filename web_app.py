@@ -68,7 +68,7 @@ async def parse(upload_file: UploadFile = File(...),
     return StreamingResponse(
         zip_buffer,
         media_type="application/zip",
-        headers={"Content-Disposition": f"attachment; filename={upload_file.filename}.zip"}
+        headers={"Content-Disposition": f"attachment; filename={upload_file_name}.zip"}
     )
 
 
