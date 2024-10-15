@@ -35,7 +35,7 @@ from marker.settings import settings
 
 
 def convert_single_pdf(
-        fname: str,
+        fname: str | bytes,
         model_lst: List,
         max_pages: int = None,
         start_page: int = None,
