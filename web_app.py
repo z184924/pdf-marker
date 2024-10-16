@@ -61,7 +61,7 @@ async def parse(upload_file: UploadFile = File(...),
             image_bytes = io.BytesIO()
             image.save(image_bytes, format='PNG')
             image_bytes.seek(0)
-            zip_file.writestr(filename + ".png", image_bytes.read())
+            zip_file.writestr(filename, image_bytes.read())
     # 将 ZIP 文件的指针移到开始位置
     zip_buffer.seek(0)
 
