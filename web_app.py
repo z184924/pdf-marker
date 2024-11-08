@@ -7,6 +7,7 @@ import os
 import zipfile
 import time
 import torch
+from datetime import timedelta
 from marker.convert import convert_single_pdf
 from marker.models import load_all_models
 
@@ -31,7 +32,7 @@ def health():
         }
 
 
-@app.post("/parse")
+@app.post("/parse", timeout=timedelta(seconds=300))
 async def parse(upload_file: UploadFile = File(...),
                 max_pages: int = None,
                 start_page: int = None,
