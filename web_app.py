@@ -1,19 +1,36 @@
 import json
 
+import asyncio
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, HTTPException
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.types import ASGIApp, Receive, Scope, Send
 import io
 import os
 import zipfile
 import time
 import torch
-from datetime import timedelta
 from marker.convert import convert_single_pdf
 from marker.models import load_all_models
 
 app = FastAPI()
 model_lst = None
 
+class TimeoutMiddleware(BaseHTTPMiddleware):
+    def __init__(self, app: ASGIApp, timeout: float):
+        super().__init__(app)
+        self.timeout = timeout
+
+    async def dispatch(self, request: Request, call_next):
+        try:
+            return await asyncio.wait_for(call_next(request), timeout=self.timeout)
+        except asyncio.TimeoutError:
+            raise HTTPException(status_code=504, detail="Request timeout")
+
+# 设置全局超时时间为 300 秒
+app.add_middleware(TimeoutMiddleware, timeout=300.0)
 
 @app.get("/health")
 def health():
@@ -32,7 +49,7 @@ def health():
         }
 
 
-@app.post("/parse", timeout=timedelta(seconds=300))
+@app.post("/parse")
 async def parse(upload_file: UploadFile = File(...),
                 max_pages: int = None,
                 start_page: int = None,
